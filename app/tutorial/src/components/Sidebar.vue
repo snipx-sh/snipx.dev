@@ -16,43 +16,37 @@ const store = useTutorialStore()
     <div class="progress-bar">
       <div
         class="progress-fill"
-        :style="{
-          width: `${(store.completedCount / store.totalLessons) * 100}%`,
-          background: T.green,
-        }"
+        :style="{ '--progress': `${(store.completedCount / store.totalLessons) * 100}%` }"
       />
     </div>
     <div class="progress-label">{{ store.completedCount }}/{{ store.totalLessons }} complete</div>
 
     <nav class="chapter-list">
-      <div v-for="ch in LEARN" :key="ch.id" class="chapter">
-        <div
-          class="chapter-title"
-          :style="{ color: ch.color }"
-        >
+      <div
+        v-for="ch in LEARN"
+        :key="ch.id"
+        class="chapter"
+        :style="{ '--chapter-color': ch.color }"
+      >
+        <div class="chapter-title">
           {{ ch.title }}
         </div>
         <button
           v-for="lesson in ch.lessons"
           :key="lesson.id"
           class="lesson-btn"
-          :class="{ active: store.lessonId === lesson.id }"
-          :style="{
-            borderLeftColor: store.lessonId === lesson.id ? ch.color : 'transparent',
+          :class="{
+            active: store.lessonId === lesson.id,
+            completed: store.completed.has(lesson.id),
           }"
+          :style="{ '--lang-color': LANG_COLOR[lesson.lang] || T.fgDim }"
           @click="store.selectLesson(ch.id, lesson.id)"
         >
-          <span
-            class="lesson-check"
-            :style="{ color: store.completed.has(lesson.id) ? T.green : T.fgMuted }"
-          >
+          <span class="lesson-check">
             {{ store.completed.has(lesson.id) ? "✓" : "○" }}
           </span>
           <span class="lesson-title">{{ lesson.title }}</span>
-          <span
-            class="lesson-lang"
-            :style="{ color: LANG_COLOR[lesson.lang] || T.fgDim }"
-          >
+          <span class="lesson-lang">
             {{ lesson.lang }}
           </span>
         </button>
@@ -108,6 +102,8 @@ const store = useTutorialStore()
   height: 100%;
   border-radius: 2px;
   transition: width 0.3s ease;
+  width: var(--progress);
+  background: v-bind("T.green");
 }
 
 .progress-label {
@@ -133,6 +129,7 @@ const store = useTutorialStore()
   text-transform: uppercase;
   letter-spacing: 0.08em;
   padding: 8px 8px 4px;
+  color: var(--chapter-color);
 }
 
 .lesson-btn {
@@ -157,6 +154,7 @@ const store = useTutorialStore()
 
 .lesson-btn.active {
   background: v-bind("T.bgHL");
+  border-left-color: var(--chapter-color);
 }
 
 .lesson-check {
@@ -164,6 +162,11 @@ const store = useTutorialStore()
   flex-shrink: 0;
   width: 16px;
   text-align: center;
+  color: v-bind("T.fgMuted");
+}
+
+.lesson-btn.completed .lesson-check {
+  color: v-bind("T.green");
 }
 
 .lesson-title {
@@ -179,5 +182,6 @@ const store = useTutorialStore()
   font-family: "JetBrains Mono", monospace;
   font-size: 9px;
   flex-shrink: 0;
+  color: var(--lang-color);
 }
 </style>

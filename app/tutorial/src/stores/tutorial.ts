@@ -25,16 +25,37 @@ function loadState(): PersistedState | null {
 }
 
 function saveState(s: PersistedState) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(s))
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s))
+  } catch {
+    // Swallow persistence errors (e.g. quota exceeded, storage disabled)
+  }
 }
 
 export const useTutorialStore = defineStore("tutorial", () => {
   const saved = loadState()
 
+  // Coerce persisted navigation state to known-good values
+  const resolvedChapter = (saved?.chapterId != null
+    ? LEARN.find((c) => c.id === saved.chapterId)
+    : undefined) ?? LEARN[0]
+
+  const resolvedLesson = (saved?.lessonId != null
+    ? resolvedChapter.lessons.find((l) => l.id === saved.lessonId)
+    : undefined) ?? resolvedChapter.lessons[0]
+
+  const resolvedLevel = (() => {
+    const n = saved?.levelN
+    if (typeof n !== "number" || !Number.isInteger(n)) return 1
+    if (n < 1) return 1
+    if (n > LEVELS.length) return LEVELS.length
+    return n
+  })()
+
   // ── Navigation state ────────────────────────────────────────────────────
-  const chapterId = ref(saved?.chapterId ?? LEARN[0].id)
-  const lessonId = ref(saved?.lessonId ?? LEARN[0].lessons[0].id)
-  const levelN = ref(saved?.levelN ?? 1)
+  const chapterId = ref(resolvedChapter.id)
+  const lessonId = ref(resolvedLesson.id)
+  const levelN = ref(resolvedLevel)
 
   // ── Progress ────────────────────────────────────────────────────────────
   const completed = ref<Set<string>>(new Set(saved?.completed ?? []))
@@ -149,9 +170,7 @@ export const useTutorialStore = defineStore("tutorial", () => {
 
   function revealAnswer() {
     showAnswer.value = true
-    code.value = lesson.value.solution
-    savedCode.value[lessonId.value] = lesson.value.solution
-    persist()
+    updateCode(lesson.value.solution)
   }
 
   function goNext() {

@@ -140,29 +140,27 @@ watch(
     if (model) {
       monaco.editor.setModelLanguage(model, getMonacoLang(store.lesson.lang))
     }
-    // Use pushEditOperations to set value without losing undo stack context
+    // Reset undo stack on lesson switch
     editor.setValue(store.code)
     applyGhostText()
   },
 )
 
 // Watch code changes from external sources (reveal answer, reset)
+// Syncs store.code → Monaco when the value changes from outside the editor
 watch(
-  () => store.showAnswer,
-  () => {
+  () => store.code,
+  (newCode) => {
     if (!editor) return
-    if (editor.getValue() !== store.code) {
-      editor.setValue(store.code)
+    if (editor.getValue() !== newCode) {
+      editor.setValue(newCode)
     }
     applyGhostText()
   },
 )
 
-// Watch ghost text changes
+// Watch ghost text changes (e.g. level switches)
 watch(() => store.ghostText, applyGhostText)
-
-// Watch code for ghost text updates
-watch(() => store.code, applyGhostText)
 
 onMounted(() => {
   initEditor()
