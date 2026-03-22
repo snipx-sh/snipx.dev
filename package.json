@@ -1,0 +1,14 @@
+{
+  "name": "react-spa",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "bun './**/*.html'",
+    "build": "bun build --target=browser src/snipx.html --outdir dist"
+  },
+  "dependencies": {
+    "lucide-react": "^0.577.0",
+    "react": "19",
+    "react-dom": "19"
+  }
+}
