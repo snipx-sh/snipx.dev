@@ -59,8 +59,8 @@ Authentication is handled via GitHub OAuth. A snipx.dev account is only needed f
 
 - **Pages** — hosts the web app
 - **Workers** — routing, GitHub API proxy, auth middleware
-- **KV** — session storage, public repo cache
-- **R2** — vector index sync, package content mirror
+- **KV** — session storage, public content cache
+- **R2** — vector index sync, knowledge content mirror
 
 ## Docs
 
