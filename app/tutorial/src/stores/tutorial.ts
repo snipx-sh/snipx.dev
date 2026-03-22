@@ -4,6 +4,7 @@ import { LEARN, LEVELS } from "../lessons"
 import type { Chapter, Lesson, Level } from "../types"
 
 const STORAGE_KEY = "snipx-tutorial"
+const PERSIST_DEBOUNCE_MS = 500
 
 interface PersistedState {
   chapterId: string
@@ -119,6 +120,13 @@ export const useTutorialStore = defineStore("tutorial", () => {
     persist()
   }
 
+  let persistTimer: ReturnType<typeof setTimeout> | null = null
+
+  function persistDebounced() {
+    if (persistTimer) clearTimeout(persistTimer)
+    persistTimer = setTimeout(persist, PERSIST_DEBOUNCE_MS)
+  }
+
   function updateCode(newCode: string) {
     code.value = newCode
     savedCode.value[lessonId.value] = newCode
@@ -126,6 +134,8 @@ export const useTutorialStore = defineStore("tutorial", () => {
     if (allTasksPassed.value && !completed.value.has(lessonId.value)) {
       completed.value.add(lessonId.value)
       persist()
+    } else {
+      persistDebounced()
     }
   }
 

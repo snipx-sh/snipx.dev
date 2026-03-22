@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, nextTick } from "vue"
 import * as monaco from "monaco-editor"
+import "monaco-editor/esm/vs/editor/editor.all.js"
 import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker"
 import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker"
 import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker"
@@ -12,8 +13,8 @@ import {
 import { useTutorialStore } from "../stores/tutorial"
 
 // Configure Monaco workers
-self.MonacoEnvironment = {
-  getWorker(_: unknown, label: string) {
+window.MonacoEnvironment = {
+  getWorker(_: string, label: string) {
     if (label === "typescript" || label === "javascript") return new tsWorker()
     if (label === "json") return new jsonWorker()
     return new editorWorker()
@@ -46,24 +47,20 @@ function getMonacoLang(lang: string): string {
   return LANG_MAP[lang] ?? "plaintext"
 }
 
-/** How many leading characters to compare when checking ghost text alignment. */
-const GHOST_ALIGNMENT_PREFIX = 20
-
 function applyGhostText() {
-  if (!editor) return
+  if (!editor || !ghostDecorations) return
   const ghost = store.ghostText
   const userCode = store.code
 
-  if (!ghost || !ghost.startsWith(userCode.slice(0, Math.min(userCode.length, GHOST_ALIGNMENT_PREFIX)))) {
-    // Ghost doesn't align — clear decorations
-    ghostDecorations?.clear()
+  if (!ghost || !ghost.startsWith(userCode)) {
+    ghostDecorations.set([])
     return
   }
 
   // Compute the part of the solution beyond what the user typed
   const remainder = ghost.slice(userCode.length)
   if (!remainder) {
-    ghostDecorations?.clear()
+    ghostDecorations.set([])
     return
   }
 
@@ -72,8 +69,7 @@ function applyGhostText() {
 
   const pos = model.getPositionAt(userCode.length)
 
-  ghostDecorations?.clear()
-  ghostDecorations = editor.createDecorationsCollection([
+  ghostDecorations.set([
     {
       range: new monaco.Range(pos.lineNumber, pos.column, pos.lineNumber, pos.column),
       options: {
