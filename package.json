@@ -4,14 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "bun './**/*.html'",
-    "build": "bun build --target=browser src/snipx.html --outdir dist"
+    "build": "bun build --target=browser src/snipx-dev.html --outdir dist"
   },
   "dependencies": {
     "lucide-react": "^0.577.0",
     "react": "19",
     "react-dom": "19"
-  },
-  "devDependencies": {
-    "wrangler": "^4.76.0"
   }
 }
