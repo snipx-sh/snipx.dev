@@ -105,9 +105,8 @@ export const useTutorialStore = defineStore("tutorial", () => {
     chapterId.value = chId
     lessonId.value = lId
 
-    // Restore saved code or use starter
-    code.value = savedCode.value[lId] ?? LEARN.find((c) => c.id === chId)
-      ?.lessons.find((l) => l.id === lId)?.starter ?? ""
+    // Restore saved code or use starter from the now-current lesson
+    code.value = savedCode.value[lId] ?? lesson.value.starter
 
     showAnswer.value = false
     stopTimer()

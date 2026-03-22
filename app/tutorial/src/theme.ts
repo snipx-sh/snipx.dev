@@ -1,4 +1,4 @@
-/** Tokyo Night color tokens — shared with the React SPA. */
+/** Tokyo Night color tokens. Mirrors the palette in src/snipx-dev.tsx. */
 export const T = {
   bg: "#1a1b26",
   bgDark: "#13131a",

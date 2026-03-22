@@ -33,16 +33,28 @@ const LANG_MAP: Record<string, string> = {
   rust: "rust",
 }
 
+const EXT_MAP: Record<string, string> = {
+  typescript: "ts",
+  javascript: "js",
+}
+
+function fileExt(lang: string): string {
+  return EXT_MAP[lang] ?? lang
+}
+
 function getMonacoLang(lang: string): string {
   return LANG_MAP[lang] ?? "plaintext"
 }
+
+/** How many leading characters to compare when checking ghost text alignment. */
+const GHOST_ALIGNMENT_PREFIX = 20
 
 function applyGhostText() {
   if (!editor) return
   const ghost = store.ghostText
   const userCode = store.code
 
-  if (!ghost || !ghost.startsWith(userCode.slice(0, Math.min(userCode.length, 20)))) {
+  if (!ghost || !ghost.startsWith(userCode.slice(0, Math.min(userCode.length, GHOST_ALIGNMENT_PREFIX)))) {
     // Ghost doesn't align — clear decorations
     ghostDecorations?.clear()
     return
@@ -171,7 +183,7 @@ onBeforeUnmount(() => {
       <span class="editor-lang" :style="{ color: store.chapter.color }">
         {{ store.lesson.lang }}
       </span>
-      <span class="editor-file">{{ store.lesson.id }}.{{ store.lesson.lang === 'typescript' ? 'ts' : store.lesson.lang }}</span>
+      <span class="editor-file">{{ store.lesson.id }}.{{ fileExt(store.lesson.lang) }}</span>
       <div class="editor-actions">
         <button class="action-btn" title="Reset" @click="store.resetLesson()">↺ Reset</button>
         <button class="action-btn reveal-btn" title="Show Answer" @click="store.revealAnswer()">
