@@ -10,5 +10,8 @@
     "lucide-react": "^0.577.0",
     "react": "19",
     "react-dom": "19"
+  },
+  "devDependencies": {
+    "wrangler": "^4.76.0"
   }
 }
